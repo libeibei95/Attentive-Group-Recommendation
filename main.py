@@ -54,7 +54,8 @@ def training(model, train_loader, epoch_id, config, type_m):
         # Loss
         loss = torch.mean((pos_prediction - neg_prediction -1) **2)
         # record loss history
-        losses.append(loss)  
+        tmp = loss.detach().numpy()
+        losses.append(tmp)
         # Backward
         loss.backward()
         optimizer.step()
@@ -81,10 +82,10 @@ if __name__ == '__main__':
     # get the dict of users in group
     g_m_d = helper.gen_group_member_dict(config.user_in_group_path)
 
-    # initial dataSet class
+# initial dataSet class
     dataset = GDataset(config.user_dataset, config.group_dataset, config.num_negatives)
 
-    # get group number
+    # get group number~
     num_group = len(g_m_d)
     num_users, num_items = dataset.num_users, dataset.num_items
 

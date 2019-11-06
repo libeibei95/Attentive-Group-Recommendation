@@ -24,9 +24,9 @@ class AGREE(nn.Module):
         # initial model
         for m in self.modules():
             if isinstance(m, nn.Linear):
-                nn.init.normal(m.weight)
+                nn.init.normal_(m.weight)
             if isinstance(m, nn.Embedding):
-                nn.init.xavier_normal(m.weight)
+                nn.init.xavier_normal_(m.weight)
 
     def forward(self, group_inputs, user_inputs, item_inputs):
         # train group
@@ -42,7 +42,7 @@ class AGREE(nn.Module):
         group_embeds = Variable(torch.Tensor())
         item_embeds_full = self.itemembeds(Variable(torch.LongTensor(item_inputs)))
         for i, j in zip(group_inputs, item_inputs):
-            members = self.group_member_dict[i]
+            members = self.group_member_dict[i.numel()]
             members_embeds = self.userembeds(Variable(torch.LongTensor(members)))
             items_numb = []
             for _ in members:
@@ -60,17 +60,17 @@ class AGREE(nn.Module):
 
         element_embeds = torch.mul(group_embeds, item_embeds_full)  # Element-wise product
         new_embeds = torch.cat((element_embeds, group_embeds, item_embeds_full), dim=1)
-        y = F.sigmoid(self.predictlayer(new_embeds))
+        y = torch.sigmoid(self.predictlayer(new_embeds))
         return y
 
     # user forward
     def usr_forward(self, user_inputs, item_inputs):
-        user_inputs_var, item_inputs_var = Variable(user_inputs), Variable(item_inputs)
+        user_inputs_var, item_inputs_var = user_inputs.long(), item_inputs.long()
         user_embeds = self.userembeds(user_inputs_var)
         item_embeds = self.itemembeds(item_inputs_var)
         element_embeds = torch.mul(user_embeds, item_embeds)  # Element-wise product
         new_embeds = torch.cat((element_embeds, user_embeds, item_embeds), dim=1)
-        y = F.sigmoid(self.predictlayer(new_embeds))
+        y = torch.sigmoid(self.predictlayer(new_embeds))
         return y
 
 class UserEmbeddingLayer(nn.Module):

@@ -80,7 +80,10 @@ class GDataset(object):
                     mat[user, item] = 1.0
                 line = f.readline()
         return mat
-
+    '''
+    user_input: list of user id
+    pi_ni: list of [pos,neg] pairs
+    '''
     def get_train_instances(self, train):
         user_input, pos_item_input, neg_item_input = [], [], []
         num_users = train.shape[0]
